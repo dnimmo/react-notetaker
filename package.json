@@ -1,0 +1,27 @@
+{
+  "name": "react-notetaker",
+  "version": "1.0.0",
+  "description": "An application for searching Github for users, displaying their repos, and taking notes on them",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dnimmo/react-notetaker.git"
+  },
+  "author": "David Nimmo <dnimmo@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dnimmo/react-notetaker/issues"
+  },
+  "homepage": "https://github.com/dnimmo/react-notetaker#readme",
+  "dependencies": {
+    "babel-core": "^5.8.21",
+    "babel-loader": "^5.3.2",
+    "express": "^4.13.3",
+    "react": "^0.13.3",
+    "react-router": "^0.13.3",
+    "webpack": "^1.11.0"
+  }
+}
