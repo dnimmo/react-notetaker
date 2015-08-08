@@ -1,15 +1,11 @@
-var React = require('react');
-var NotesList = require('./notes-list.js');
-var AddNote = require('./add-note.js');
+// ES6's 'import' replaces 'require'
+import React from 'react';
+import NotesList from './notes-list.js';
+import AddNote from './add-note.js';
 
-var Notes = React.createClass({
-   // Validate the properties that are passed in. Without a username or notes, this component won't do anything, so they might as well be set as isRequired. The addNote function is required to enable new notes to be added
-  propTypes: {
-    username: React.PropTypes.string.isRequired,
-    notes: React.PropTypes.array.isRequired,
-    addNote: React.PropTypes.func.isRequired
-  },
-  render: function(){
+class Notes extends React.Component{
+  // ES6 so no need for "function()"
+  render(){
     // Pass notes into the NotesList component (at ./notes-list.js) 
     return (
       <div>
@@ -19,6 +15,14 @@ var Notes = React.createClass({
       </div>
     )
   }
-});
+};
 
-module.exports = Notes;
+// PropTypes need to be added as a property on the class
+Notes.PropTypes = {
+    username: React.PropTypes.string.isRequired,
+    notes: React.PropTypes.array.isRequired,
+    addNote: React.PropTypes.func.isRequired
+};
+
+// export default Notes replaces module.exports = Notes
+export default Notes;

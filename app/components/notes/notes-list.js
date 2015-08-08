@@ -1,9 +1,12 @@
-var React = require('react');
+// ES6 import statement replaces 'require'
+import React from 'react';
 
-var NotesList = React.createClass({
+// ES6 classes
+class NotesList extends React.Component{
   // Build up <li>s for every note against the current profile and then output them inside the <ul> in the return statement on render
-  render: function(){
-    var notes = this.props.notes.map(function(note, index){
+  // I'm using ES6 now so no need to type function(). Also in the .map(), I can use '(note, index) =>' instead of function(note, index)
+  render(){
+    var notes = this.props.notes.map((note, index) => {
       return <li className='list-group-item' key={index}>{note}</li>
     });
     return (
@@ -12,6 +15,7 @@ var NotesList = React.createClass({
       </ul>
     )
   }
-});
+};
 
-module.exports = NotesList;
+// ES6 export default replaces 'module.export'
+export default NotesList;
