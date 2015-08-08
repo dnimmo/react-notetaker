@@ -1,6 +1,7 @@
 var React = require('react');
 var RouteHandler = require('react-router').RouteHandler;
 
+// Create the "Main" component. This Component puts out the nav bar, as well as the container for the view of the current route. The default route is in "home.js", and ahything else is driven by "/profile/[username]" on the url, which is handled in profile.js
 var Main = React.createClass({
   render: function(){
     return (

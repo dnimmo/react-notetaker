@@ -1,3 +1,5 @@
+// This handles the default route ('/');
+
 var React = require('react');
 
 var Home = React.createClass({

@@ -1,4 +1,4 @@
-// Config for Webpack
+// Config for Webpack - define the entry point and the output file, test for .jsx, exlude the node_modules and bower_components folders, and use babel for the transformation of JSX to JS
 
 module.exports = {
   entry: "./app/app.js",
