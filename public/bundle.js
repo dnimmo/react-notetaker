@@ -23548,8 +23548,8 @@
 
 	var React = __webpack_require__(1);
 	var Main = __webpack_require__(197);
-	var Home = __webpack_require__(198);
-	var Profile = __webpack_require__(199);
+	var Home = __webpack_require__(199);
+	var Profile = __webpack_require__(200);
 	var Router = __webpack_require__(157);
 	var DefaultRoute = Router.DefaultRoute;
 	var Route = Router.Route;
@@ -23570,7 +23570,7 @@
 
 	var React = __webpack_require__(1);
 	var RouteHandler = __webpack_require__(157).RouteHandler;
-	var SearchGithub = __webpack_require__(207);
+	var SearchGithub = __webpack_require__(198);
 
 	// Create the "Main" component. This Component puts out the nav bar, as well as the container for the view of the current route. The default route is in "home.js", and ahything else is driven by "/profile/[username]" on the url, which is handled in profile.js
 	var Main = React.createClass({
@@ -23604,6 +23604,50 @@
 /* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var Router = __webpack_require__(157);
+
+	var SearchGithub = React.createClass({
+	  displayName: 'SearchGithub',
+
+	  mixins: [Router.Navigation],
+	  handleSubmit: function handleSubmit() {
+	    var usernameNode = this.refs.username.getDOMNode();
+	    var username = usernameNode.value;
+	    usernameNode.value = '';
+	    // transitionTo is added through Router.Navigation. The first param is the name of the route, and the second param is the thing being passed in (in this case, username)
+	    this.transitionTo('profile', { username: username });
+	  },
+	  render: function render() {
+	    return React.createElement(
+	      'form',
+	      { onSubmit: this.handleSubmit },
+	      React.createElement(
+	        'div',
+	        { className: 'form-group col-sm-7' },
+	        React.createElement('input', { type: 'text', className: 'form-control', ref: 'username' })
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'form-group col-sm-5' },
+	        React.createElement(
+	          'button',
+	          { type: 'submit', className: 'btn btn-block btn-primary' },
+	          'Search Github'
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = SearchGithub;
+
+/***/ },
+/* 199 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// This handles the default route ('/');
 
 	'use strict';
@@ -23625,18 +23669,18 @@
 	module.exports = Home;
 
 /***/ },
-/* 199 */
+/* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
 	var Router = __webpack_require__(157);
-	var UserProfile = __webpack_require__(200);
-	var Repos = __webpack_require__(201);
-	var Notes = __webpack_require__(202);
-	var ReactFireMixin = __webpack_require__(205);
-	var Firebase = __webpack_require__(206);
+	var UserProfile = __webpack_require__(201);
+	var Repos = __webpack_require__(202);
+	var Notes = __webpack_require__(203);
+	var ReactFireMixin = __webpack_require__(206);
+	var Firebase = __webpack_require__(207);
 	var helpers = __webpack_require__(208);
 
 	var Profile = React.createClass({
@@ -23706,7 +23750,7 @@
 	module.exports = Profile;
 
 /***/ },
-/* 200 */
+/* 201 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23722,6 +23766,7 @@
 	    bio: React.PropTypes.object.isRequired
 	  },
 	  render: function render() {
+	    // Renders user info, but only if the info actually exists in the data returned from the Github API
 	    return React.createElement(
 	      'div',
 	      null,
@@ -23730,17 +23775,68 @@
 	        null,
 	        'User profile'
 	      ),
-	      React.createElement(
-	        'p',
-	        null,
-	        'Username: ',
-	        this.props.username
+	      this.props.bio.avatar_url && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        React.createElement('img', { src: this.props.bio.avatar_url, className: 'img-responsive' })
 	      ),
-	      React.createElement(
-	        'p',
-	        null,
-	        'Bio: ',
-	        this.props.bio
+	      this.props.bio.name && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Name: ',
+	        this.props.bio.name
+	      ),
+	      this.props.bio.login && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Userame: ',
+	        this.props.bio.login
+	      ),
+	      this.props.bio.email && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Email: ',
+	        this.props.bio.email
+	      ),
+	      this.props.bio.location && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Location: ',
+	        this.props.bio.location
+	      ),
+	      this.props.bio.company && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Company: ',
+	        this.props.bio.company
+	      ),
+	      this.props.bio.followers && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Followers: ',
+	        this.props.bio.followers
+	      ),
+	      this.props.bio.following && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Following: ',
+	        this.props.bio.following
+	      ),
+	      this.props.bio.public_repos && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Public: ',
+	        this.props.bio.public_repos
+	      ),
+	      this.props.bio.blog && React.createElement(
+	        'li',
+	        { className: 'list-group-item' },
+	        'Website: ',
+	        React.createElement(
+	          'a',
+	          { href: this.props.bio.blog },
+	          this.props.bio.blog
+	        )
 	      )
 	    );
 	  }
@@ -23749,7 +23845,7 @@
 	module.exports = UserProfile;
 
 /***/ },
-/* 201 */
+/* 202 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23765,19 +23861,39 @@
 	    repos: React.PropTypes.array.isRequired
 	  },
 	  render: function render() {
+	    var repos = this.props.repos.map(function (repo, index) {
+	      // Note: React needs the 'key={index}' in order to allow mapping to work
+	      return React.createElement(
+	        'li',
+	        { className: 'list-group-item', key: index },
+	        repo.html_url && React.createElement(
+	          'h4',
+	          null,
+	          React.createElement(
+	            'a',
+	            { href: repo.html_url },
+	            repo.name
+	          )
+	        ),
+	        repo.description && React.createElement(
+	          'p',
+	          null,
+	          repo.description
+	        )
+	      );
+	    });
 	    return React.createElement(
 	      'div',
 	      null,
 	      React.createElement(
 	        'h3',
 	        null,
-	        'Repos'
+	        'User Repos'
 	      ),
 	      React.createElement(
-	        'p',
-	        null,
-	        'Repos: ',
-	        this.props.repos
+	        'ul',
+	        { className: 'list-group' },
+	        repos
 	      )
 	    );
 	  }
@@ -23786,14 +23902,14 @@
 	module.exports = Repos;
 
 /***/ },
-/* 202 */
+/* 203 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var NotesList = __webpack_require__(203);
-	var AddNote = __webpack_require__(204);
+	var NotesList = __webpack_require__(204);
+	var AddNote = __webpack_require__(205);
 
 	var Notes = React.createClass({
 	  displayName: 'Notes',
@@ -23824,7 +23940,7 @@
 	module.exports = Notes;
 
 /***/ },
-/* 203 */
+/* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23854,7 +23970,7 @@
 	module.exports = NotesList;
 
 /***/ },
-/* 204 */
+/* 205 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23897,7 +24013,7 @@
 	module.exports = AddNote;
 
 /***/ },
-/* 205 */
+/* 206 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -24067,7 +24183,7 @@
 	}));
 
 /***/ },
-/* 206 */
+/* 207 */
 /***/ function(module, exports) {
 
 	/*! @license Firebase v2.2.9
@@ -24336,50 +24452,6 @@
 
 	module.exports = Firebase;
 
-
-/***/ },
-/* 207 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var Router = __webpack_require__(157);
-
-	var SearchGithub = React.createClass({
-	  displayName: 'SearchGithub',
-
-	  mixins: [Router.Navigation],
-	  handleSubmit: function handleSubmit() {
-	    var usernameNode = this.refs.username.getDOMNode();
-	    var username = usernameNode.value;
-	    usernameNode.value = '';
-	    // transitionTo is added through Router.Navigation. The first param is the name of the route, and the second param is the thing being passed in (in this case, username)
-	    this.transitionTo('profile', { username: username });
-	  },
-	  render: function render() {
-	    return React.createElement(
-	      'form',
-	      { onSubmit: this.handleSubmit },
-	      React.createElement(
-	        'div',
-	        { className: 'form-group col-sm-7' },
-	        React.createElement('input', { type: 'text', className: 'form-control', ref: 'username' })
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'form-group col-sm-5' },
-	        React.createElement(
-	          'button',
-	          { type: 'submit', className: 'btn btn-block btn-primary' },
-	          'Search Github'
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = SearchGithub;
 
 /***/ },
 /* 208 */
