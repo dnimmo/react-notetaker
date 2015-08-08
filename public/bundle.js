@@ -23600,107 +23600,220 @@
 /* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// ES6's import replaces 'require'
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var RouteHandler = __webpack_require__(157).RouteHandler;
-	var SearchGithub = __webpack_require__(198);
-
-	// Create the "Main" component. This Component puts out the nav bar, as well as the container for the view of the current route. The default route is in "home.js", and ahything else is driven by "/profile/[username]" on the url, which is handled in profile.js
-	var Main = React.createClass({
-	  displayName: 'Main',
-
-	  render: function render() {
-	    return React.createElement(
-	      'div',
-	      { className: 'mainContainer' },
-	      React.createElement(
-	        'nav',
-	        { className: 'navbar navbar-default', role: 'navigation' },
-	        React.createElement(
-	          'div',
-	          { className: 'col-sm-7 col-sm-offset-2', style: { marginTop: 15 } },
-	          React.createElement(SearchGithub, null)
-	        )
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'container' },
-	        React.createElement(RouteHandler, null)
-	      )
-	    );
-	  }
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
 	});
 
-	module.exports = Main;
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	// This replaces var RouteHandler = require('react-router').RouteHandler;
+
+	var _reactRouter = __webpack_require__(157);
+
+	var _searchGithubJs = __webpack_require__(198);
+
+	var _searchGithubJs2 = _interopRequireDefault(_searchGithubJs);
+
+	// Create the "Main" component. This Component puts out the nav bar, as well as the container for the view of the current route. The default route is in "home.js", and anything else is driven by "/profile/[username]" on the url, which is handled in profile.js
+	// This is using ES6 classes
+
+	var Main = (function (_React$Component) {
+	  _inherits(Main, _React$Component);
+
+	  function Main() {
+	    _classCallCheck(this, Main);
+
+	    _get(Object.getPrototypeOf(Main.prototype), 'constructor', this).apply(this, arguments);
+	  }
+
+	  _createClass(Main, [{
+	    key: 'render',
+	    value: function render() {
+	      // Where the RouteHandler component is called, the spread arguments being passed as this.props is the {...state} argument from app.js. This is being passed down so that each component can get information about the route that they're on through their properties (this.props)
+	      return _react2['default'].createElement(
+	        'div',
+	        { className: 'mainContainer' },
+	        _react2['default'].createElement(
+	          'nav',
+	          { className: 'navbar navbar-default', role: 'navigation' },
+	          _react2['default'].createElement(
+	            'div',
+	            { className: 'col-sm-7 col-sm-offset-2', style: { marginTop: 15 } },
+	            _react2['default'].createElement(_searchGithubJs2['default'], null)
+	          )
+	        ),
+	        _react2['default'].createElement(
+	          'div',
+	          { className: 'container' },
+	          _react2['default'].createElement(_reactRouter.RouteHandler, this.props)
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Main;
+	})(_react2['default'].Component);
+
+	;
+
+	exports['default'] = Main;
+	module.exports = exports['default'];
 
 /***/ },
 /* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// ES6 import replaces 'require'
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var Router = __webpack_require__(157);
-
-	var SearchGithub = React.createClass({
-	  displayName: 'SearchGithub',
-
-	  mixins: [Router.Navigation],
-	  handleSubmit: function handleSubmit() {
-	    var usernameNode = this.refs.username.getDOMNode();
-	    var username = usernameNode.value;
-	    usernameNode.value = '';
-	    // transitionTo is added through Router.Navigation. The first param is the name of the route, and the second param is the thing being passed in (in this case, username)
-	    this.transitionTo('profile', { username: username });
-	  },
-	  render: function render() {
-	    return React.createElement(
-	      'form',
-	      { onSubmit: this.handleSubmit },
-	      React.createElement(
-	        'div',
-	        { className: 'form-group col-sm-7' },
-	        React.createElement('input', { type: 'text', className: 'form-control', ref: 'username' })
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'form-group col-sm-5' },
-	        React.createElement(
-	          'button',
-	          { type: 'submit', className: 'btn btn-block btn-primary' },
-	          'Search Github'
-	        )
-	      )
-	    );
-	  }
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
 	});
 
-	module.exports = SearchGithub;
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	// ES6 class - note the lack of commas between functions; this isn't an object so they're not required
+
+	var SearchGithub = (function (_React$Component) {
+	  _inherits(SearchGithub, _React$Component);
+
+	  function SearchGithub() {
+	    _classCallCheck(this, SearchGithub);
+
+	    _get(Object.getPrototypeOf(SearchGithub.prototype), 'constructor', this).apply(this, arguments);
+	  }
+
+	  _createClass(SearchGithub, [{
+	    key: 'handleSubmit',
+	    value: function handleSubmit() {
+	      // Router is used in this way as we can't use mixins in ES6
+	      var router = this.context.router;
+	      var usernameNode = this.refs.username.getDOMNode();
+	      var username = usernameNode.value;
+	      usernameNode.value = '';
+	      // transitionTo is added through the 'router' contextType. The first param is the name of the route, and the second param is the thing being passed in (in this case, username)
+	      router.transitionTo('profile', { username: username });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2['default'].createElement(
+	        'form',
+	        { onSubmit: this.handleSubmit.bind(this) },
+	        _react2['default'].createElement(
+	          'div',
+	          { className: 'form-group col-sm-7' },
+	          _react2['default'].createElement('input', { type: 'text', className: 'form-control', ref: 'username' })
+	        ),
+	        _react2['default'].createElement(
+	          'div',
+	          { className: 'form-group col-sm-5' },
+	          _react2['default'].createElement(
+	            'button',
+	            { type: 'submit', className: 'btn btn-block btn-primary' },
+	            'Search Github'
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return SearchGithub;
+	})(_react2['default'].Component);
+
+	;
+
+	// Tells React that this component needs the context that's passed in by React-Router
+	SearchGithub.contextTypes = {
+	  router: _react2['default'].PropTypes.func.isRequired
+	};
+
+	// ES6's 'export default' replaces 'module.exports'
+	exports['default'] = SearchGithub;
+	module.exports = exports['default'];
 
 /***/ },
 /* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// This handles the default route ('/');
-
+	// ES6's 'import' statement replaces 'require'
 	'use strict';
 
-	var React = __webpack_require__(1);
-
-	var Home = React.createClass({
-	  displayName: 'Home',
-
-	  render: function render() {
-	    return React.createElement(
-	      'h2',
-	      { className: 'text-center' },
-	      'Search by Github username above'
-	    );
-	  }
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
 	});
 
-	module.exports = Home;
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	// ES6 class
+
+	var Home = (function (_React$Component) {
+	  _inherits(Home, _React$Component);
+
+	  function Home() {
+	    _classCallCheck(this, Home);
+
+	    _get(Object.getPrototypeOf(Home.prototype), 'constructor', this).apply(this, arguments);
+	  }
+
+	  // export default replaces module.exports
+
+	  _createClass(Home, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2['default'].createElement(
+	        'h2',
+	        { className: 'text-center' },
+	        'Search by Github username above'
+	      );
+	    }
+	  }]);
+
+	  return Home;
+	})(_react2['default'].Component);
+
+	exports['default'] = Home;
+	module.exports = exports['default'];
 
 /***/ },
 /* 200 */

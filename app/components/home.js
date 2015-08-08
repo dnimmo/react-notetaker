@@ -1,15 +1,17 @@
 // This handles the default route ('/');
+// ES6's 'import' statement replaces 'require'
+import React from 'react';
 
-var React = require('react');
-
-var Home = React.createClass({
-  render: function(){
+// ES6 class
+class Home extends React.Component{
+  render(){
     return (
       <h2 className='text-center'>
         Search by Github username above
-      </h2>
+      </h2>      
     )
   }
-});
+}
 
-module.exports = Home;
+// export default replaces module.exports
+export default Home;
