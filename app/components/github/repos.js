@@ -1,17 +1,14 @@
-var React = require('react');
+// ES6's 'import' replaces 'require'
+import React from 'react';
 
-var Repos = React.createClass({
-  // Validate the properties that are passed in. Without a username or repos, this component won't do anything, so they might as well be set as isRequired.
-  propTypes: {
-    username: React.PropTypes.string.isRequired,
-    repos: React.PropTypes.array.isRequired
-  },
-  render: function(){
-    var repos = this.props.repos.map(function(repo, index){
+class Repos extends React.Component{
+  // ES6 so no "function", and I can use '=>' inside render() as well
+  render(){
+    var repos = this.props.repos.map((repo, index) => {
       // Note: React needs the 'key={index}' in order to allow mapping to work
       return (
         <li className='list-group-item' key={index}>
-          {repo.html_url && <h4><a href={repo.html_url}>{repo.name}</a></h4>}
+          {repo.html_url && <h4><a href={repo.html_url} target='_blank'>{repo.name}</a></h4>}
           {repo.description && <p>{repo.description}</p>}
         </li>
       );
@@ -23,8 +20,14 @@ var Repos = React.createClass({
           {repos}  
         </ul>
       </div>
-    )
+    )  
   }
-});
+}
 
-module.exports = Repos;
+// PropTypes have to be added to the class in ES6
+Repos.PropTypes = {
+    username: React.PropTypes.string.isRequired,
+    repos: React.PropTypes.array.isRequired  
+}
+
+export default Repos;

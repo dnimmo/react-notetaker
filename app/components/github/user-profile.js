@@ -1,12 +1,8 @@
-var React = require('react');
+// ES6 import statement replaces 'require'
+import React from 'react';
 
-var UserProfile = React.createClass({
-  // Validate the properties that are passed in. Without a username or bio, this component won't do anything, so they might as well be set as isRequired.
-  propTypes: {
-    username: React.PropTypes.string.isRequired,
-    bio: React.PropTypes.object.isRequired
-  },
-  render: function(){
+class UserProfile extends React.Component{
+  render(){
     // Renders user info, but only if the info actually exists in the data returned from the Github API
     return (
       <div>
@@ -20,10 +16,11 @@ var UserProfile = React.createClass({
         {this.props.bio.followers && <li className='list-group-item'>Followers: {this.props.bio.followers}</li>}
         {this.props.bio.following && <li className='list-group-item'>Following: {this.props.bio.following}</li>}
         {this.props.bio.public_repos && <li className='list-group-item'>Public: {this.props.bio.public_repos}</li>}
-        {this.props.bio.blog && <li className='list-group-item'>Website: <a href={this.props.bio.blog}>{this.props.bio.blog}</a></li>}
+        {this.props.bio.blog && <li className='list-group-item'>Website: <a href={this.props.bio.blog} target='_blank'>{this.props.bio.blog}</a></li>}
       </div>
     )
   }
-});
+}
 
-module.exports = UserProfile;
+// ES6 export replaces module.exports
+export default UserProfile;
