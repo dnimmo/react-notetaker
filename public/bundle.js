@@ -23570,6 +23570,7 @@
 
 	var React = __webpack_require__(1);
 	var RouteHandler = __webpack_require__(157).RouteHandler;
+	var SearchGithub = __webpack_require__(207);
 
 	// Create the "Main" component. This Component puts out the nav bar, as well as the container for the view of the current route. The default route is in "home.js", and ahything else is driven by "/profile/[username]" on the url, which is handled in profile.js
 	var Main = React.createClass({
@@ -23585,7 +23586,7 @@
 	        React.createElement(
 	          'div',
 	          { className: 'col-sm-7 col-sm-offset-2', style: { marginTop: 15 } },
-	          'MENU'
+	          React.createElement(SearchGithub, null)
 	        )
 	      ),
 	      React.createElement(
@@ -24327,6 +24328,50 @@
 
 	module.exports = Firebase;
 
+
+/***/ },
+/* 207 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var Router = __webpack_require__(157);
+
+	var SearchGithub = React.createClass({
+	  displayName: 'SearchGithub',
+
+	  mixins: [Router.Navigation],
+	  handleSubmit: function handleSubmit() {
+	    var usernameNode = this.refs.username.getDOMNode();
+	    var username = usernameNode.value;
+	    usernameNode.value = '';
+	    // transitionTo is added through Router.Navigation. The first param is the name of the route, and the second param is the thing being passed in (in this case, username)
+	    this.transitionTo('profile', { username: username });
+	  },
+	  render: function render() {
+	    return React.createElement(
+	      'form',
+	      { onSubmit: this.handleSubmit },
+	      React.createElement(
+	        'div',
+	        { className: 'form-group col-sm-7' },
+	        React.createElement('input', { type: 'text', className: 'form-control', ref: 'username' })
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'form-group col-sm-5' },
+	        React.createElement(
+	          'button',
+	          { type: 'submit', className: 'btn btn-block btn-primary' },
+	          'Search Github'
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = SearchGithub;
 
 /***/ }
 /******/ ]);
