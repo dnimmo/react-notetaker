@@ -23571,6 +23571,7 @@
 	var React = __webpack_require__(1);
 	var RouteHandler = __webpack_require__(157).RouteHandler;
 
+	// Create the "Main" component. This Component puts out the nav bar, as well as the container for the view of the current route. The default route is in "home.js", and ahything else is driven by "/profile/[username]" on the url, which is handled in profile.js
 	var Main = React.createClass({
 	  displayName: 'Main',
 
@@ -23633,13 +23634,14 @@
 	var UserProfile = __webpack_require__(200);
 	var Repos = __webpack_require__(201);
 	var Notes = __webpack_require__(202);
-	var ReactFireMixin = __webpack_require__(204);
-	var Firebase = __webpack_require__(205);
+	var ReactFireMixin = __webpack_require__(205);
+	var Firebase = __webpack_require__(206);
 
 	var Profile = React.createClass({
 	  displayName: 'Profile',
 
 	  mixins: [Router.State, ReactFireMixin],
+	  // Set up the initial state's properties
 	  getInitialState: function getInitialState() {
 	    return {
 	      notes: ['Note 1', 'Note 2'],
@@ -23650,7 +23652,7 @@
 	  componentDidMount: function componentDidMount() {
 	    // This is called when the component is mounted in the view
 	    this.ref = new Firebase('https://glaring-inferno-8473.firebaseio.com');
-	    // Get the data for the username passed in to the profile component. Firebase ensures that when this data changes in its database, this will change here too
+	    // Get the data for the username passed in to the profile component. Firebase ensures that when this data changes in its database, it will be changed here as well, which in turn will update the view
 	    var childRef = this.ref.child(this.getParams().username);
 	    // bindAsArray is added by the ReactFireMixin. Here we're using it to get the notes associated with the user passed in through childRef
 	    this.bindAsArray(childRef, 'notes');
@@ -23659,9 +23661,14 @@
 	    // Remove listener when the component is not in use
 	    this.unbind('notes');
 	  },
+	  handleAddNote: function handleAddNote(newNote) {
+	    // Function to add new notes into Firebase
+	    this.ref.child(this.getParams().username).set(this.state.notes.concat([newNote]));
+	  },
 	  render: function render() {
 	    // params.username is set in routes.js
 	    var username = this.getParams().username;
+	    // This function controls the profile view, which is made up of three components: UserProfile (github/user-profile.js), Repos (github/repos.js) and Notes (notes/notes.js). The notes function passes the addNote function which is defined further up this file, along with any pre-existing notes, which it gets from Firebase in the 'componentDidMount' function (further up this file) under this.bindAsArray.
 	    return React.createElement(
 	      'div',
 	      { className: 'row' },
@@ -23678,7 +23685,10 @@
 	      React.createElement(
 	        'div',
 	        { className: 'col-md-4' },
-	        React.createElement(Notes, { username: username, notes: this.state.notes })
+	        React.createElement(Notes, {
+	          username: username,
+	          notes: this.state.notes,
+	          addNote: this.handleAddNote })
 	      )
 	    );
 	  }
@@ -23774,14 +23784,16 @@
 
 	var React = __webpack_require__(1);
 	var NotesList = __webpack_require__(203);
+	var AddNote = __webpack_require__(204);
 
 	var Notes = React.createClass({
 	  displayName: 'Notes',
 
-	  // Validate the properties that are passed in. Without a username or notes, this component won't do anything, so they might as well be set as isRequired.
+	  // Validate the properties that are passed in. Without a username or notes, this component won't do anything, so they might as well be set as isRequired. The addNote function is required to enable new notes to be added
 	  propTypes: {
 	    username: React.PropTypes.string.isRequired,
-	    notes: React.PropTypes.array.isRequired
+	    notes: React.PropTypes.array.isRequired,
+	    addNote: React.PropTypes.func.isRequired
 	  },
 	  render: function render() {
 	    // Pass notes into the NotesList component (at ./notes-list.js)
@@ -23794,6 +23806,7 @@
 	        'Notes for ',
 	        this.props.username
 	      ),
+	      React.createElement(AddNote, { username: this.props.username, addNote: this.props.addNote }),
 	      React.createElement(NotesList, { notes: this.props.notes })
 	    );
 	  }
@@ -23812,6 +23825,7 @@
 	var NotesList = React.createClass({
 	  displayName: 'NotesList',
 
+	  // Build up <li>s for every note against the current profile and then output them inside the <ul> in the return statement on render
 	  render: function render() {
 	    var notes = this.props.notes.map(function (note, index) {
 	      return React.createElement(
@@ -23834,26 +23848,67 @@
 /* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var AddNote = React.createClass({
+	  displayName: 'AddNote',
+
+	  // Validate the properties that are passed in. Without a username or the ability to add notes, this component won't do anything, so they might as well be set as isRequired.
+	  PropTypes: {
+	    username: React.PropTypes.string.isRequired,
+	    addNote: React.PropTypes.func.isRequired
+	  },
+	  handleSubmit: function handleSubmit() {
+	    var noteNode = this.refs.note.getDOMNode();
+	    var newNote = noteNode.value;
+	    noteNode.value = '';
+	    this.props.addNote(newNote);
+	  },
+	  render: function render() {
+	    // Note: "ref" on the input field is a React thing - it lets you access anything inside this input with this.refs, in the same way as this.props; in the code below it'll be this.refs.note
+	    return React.createElement(
+	      'div',
+	      { className: 'input-group' },
+	      React.createElement('input', { type: 'text', className: 'form-control', ref: 'note', placeholder: 'Add New Note' }),
+	      React.createElement(
+	        'span',
+	        { className: 'input-group-btn' },
+	        React.createElement(
+	          'button',
+	          { className: 'btn btn-default', type: 'button', onClick: this.handleSubmit },
+	          ' Add '
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = AddNote;
+
+/***/ },
+/* 205 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	 * ReactFire is an open-source JavaScript library that allows you to add a
 	 * realtime data source to your React apps by providing and easy way to let
 	 * Firebase populate the state of React components.
 	 *
-	 * ReactFire 0.5.0
+	 * ReactFire 0.4.0
 	 * https://github.com/firebase/reactfire/
 	 * License: MIT
 	 */
-	/* eslint "strict": [2, "function"] */
-	(function(root, factory) {
-	  'use strict';
 
-	  /* istanbul ignore next */
+	;(function (root, factory) {
+	  "use strict";
 	  if (true) {
 	    // AMD
 	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
 	      return (root.ReactFireMixin = factory());
 	    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	  } else if (typeof exports === 'object') {
+	  } else if (typeof exports === "object") {
 	    // CommonJS
 	    module.exports = factory();
 	  } else {
@@ -23861,348 +23916,149 @@
 	    root.ReactFireMixin = factory();
 	  }
 	}(this, function() {
-	  'use strict';
+	  "use strict";
 
-	  /*************/
-	  /*  HELPERS  */
-	  /*************/
-	  /**
-	   * Returns the index of the key in the list. If an item with the key is not in the list, -1 is
-	   * returned.
-	   *
-	   * @param {Array<any>} list A list of items.
-	   * @param {string} key The key for which to search.
-	   * @return {number} The index of the item which has the provided key or -1 if no items have the
-	   * provided key.
-	   */
-	  function _indexForKey(list, key) {
-	    for (var i = 0, length = list.length; i < length; ++i) {
-	      if (list[i]['.key'] === key) {
-	        return i;
+	var ReactFireMixin = {
+	  /********************/
+	  /*  MIXIN LIFETIME  */
+	  /********************/
+	  /* Initializes the Firebase binding refs array */
+	  componentWillMount: function() {
+	    this.firebaseRefs = {};
+	    this.firebaseListeners = {};
+	  },
+
+	  /* Removes any remaining Firebase bindings */
+	  componentWillUnmount: function() {
+	    for (var key in this.firebaseRefs) {
+	      if (this.firebaseRefs.hasOwnProperty(key)) {
+	        this.unbind(key);
 	      }
 	    }
-
-	    /* istanbul ignore next */
-	    return -1;
-	  }
-
-	  /**
-	   * Throws a formatted error message.
-	   *
-	   * @param {string} message The error message to throw.
-	   */
-	  function _throwError(message) {
-	    throw new Error('ReactFire: ' + message);
-	  }
-
-	  /**
-	   * Validates the name of the variable which is being bound.
-	   *
-	   * @param {string} bindVar The variable which is being bound.
-	   */
-	  function _validateBindVar(bindVar) {
-	    var errorMessage;
-
-	    if (typeof bindVar !== 'string') {
-	      errorMessage = 'Bind variable must be a string. Got: ' + bindVar;
-	    } else if (bindVar.length === 0) {
-	      errorMessage = 'Bind variable must be a non-empty string. Got: ""';
-	    } else if (bindVar.length > 768) {
-	      // Firebase can only stored child paths up to 768 characters
-	      errorMessage = 'Bind variable is too long to be stored in Firebase. Got: ' + bindVar;
-	    } else if (/[\[\].#$\/\u0000-\u001F\u007F]/.test(bindVar)) {
-	      // Firebase does not allow node keys to contain the following characters
-	      errorMessage = 'Bind variable cannot contain any of the following characters: . # $ ] [ /. Got: ' + bindVar;
-	    }
-
-	    if (typeof errorMessage !== 'undefined') {
-	      _throwError(errorMessage);
-	    }
-	  }
-
-	  /**
-	   * Creates a new record given a key-value pair.
-	   *
-	   * @param {string} key The new record's key.
-	   * @param {any} value The new record's value.
-	   * @return {Object} The new record.
-	   */
-	  function _createRecord(key, value) {
-	    var record = {};
-	    if (typeof value === 'object' && value !== null) {
-	      record = value;
-	    } else {
-	      record['.value'] = value;
-	    }
-	    record['.key'] = key;
-
-	    return record;
-	  }
-
-
-	  /******************************/
-	  /*  BIND AS OBJECT LISTENERS  */
-	  /******************************/
-	  /**
-	   * 'value' listener which updates the value of the bound state variable.
-	   *
-	   * @param {string} bindVar The state variable to which the data is being bound.
-	   * @param {Firebase.DataSnapshot} snapshot A snapshot of the data being bound.
-	   */
-	  function _objectValue(bindVar, snapshot) {
-	    var key = snapshot.key();
-	    var value = snapshot.val();
-
-	    this.data[bindVar] = _createRecord(key, value);
-
-	    this.setState(this.data);
-	  }
-
-
-	  /*****************************/
-	  /*  BIND AS ARRAY LISTENERS  */
-	  /*****************************/
-	  /**
-	   * 'child_added' listener which adds a new record to the bound array.
-	   *
-	   * @param {string} bindVar The state variable to which the data is being bound.
-	   * @param {Firebase.DataSnapshot} snapshot A snapshot of the data being bound.
-	   * @param {string|null} previousChildKey The key of the child after which the provided snapshot
-	   * is positioned; null if the provided snapshot is in the first position.
-	   */
-	  function _arrayChildAdded(bindVar, snapshot, previousChildKey) {
-	    var key = snapshot.key();
-	    var value = snapshot.val();
-	    var array = this.data[bindVar];
-
-	    // Determine where to insert the new record
-	    var insertionIndex;
-	    if (previousChildKey === null) {
-	      insertionIndex = 0;
-	    } else {
-	      var previousChildIndex = _indexForKey(array, previousChildKey);
-	      insertionIndex = previousChildIndex + 1;
-	    }
-
-	    // Add the new record to the array
-	    array.splice(insertionIndex, 0, _createRecord(key, value));
-
-	    // Update state
-	    this.setState(this.data);
-	  }
-
-	  /**
-	   * 'child_removed' listener which removes a record from the bound array.
-	   *
-	   * @param {string} bindVar The state variable to which the data is bound.
-	   * @param {Firebase.DataSnapshot} snapshot A snapshot of the bound data.
-	   */
-	  function _arrayChildRemoved(bindVar, snapshot) {
-	    var array = this.data[bindVar];
-
-	    // Look up the record's index in the array
-	    var index = _indexForKey(array, snapshot.key());
-
-	    // Splice out the record from the array
-	    array.splice(index, 1);
-
-	    // Update state
-	    this.setState(this.data);
-	  }
-
-	  /**
-	   * 'child_changed' listener which updates a record's value in the bound array.
-	   *
-	   * @param {string} bindVar The state variable to which the data is bound.
-	   * @param {Firebase.DataSnapshot} snapshot A snapshot of the data to bind.
-	   */
-	  function _arrayChildChanged(bindVar, snapshot) {
-	    var key = snapshot.key();
-	    var value = snapshot.val();
-	    var array = this.data[bindVar];
-
-	    // Look up the record's index in the array
-	    var index = _indexForKey(array, key);
-
-	    // Update the record's value in the array
-	    array[index] = _createRecord(key, value);
-
-	    // Update state
-	    this.setState(this.data);
-	  }
-
-	  /**
-	   * 'child_moved' listener which updates a record's position in the bound array.
-	   *
-	   * @param {string} bindVar The state variable to which the data is bound.
-	   * @param {Firebase.DataSnapshot} snapshot A snapshot of the bound data.
-	   * @param {string|null} previousChildKey The key of the child after which the provided snapshot
-	   * is positioned; null if the provided snapshot is in the first position.
-	   */
-	  function _arrayChildMoved(bindVar, snapshot, previousChildKey) {
-	    var key = snapshot.key();
-	    var array = this.data[bindVar];
-
-	    // Look up the record's index in the array
-	    var currentIndex = _indexForKey(array, key);
-
-	    // Splice out the record from the array
-	    var record = array.splice(currentIndex, 1)[0];
-
-	    // Determine where to re-insert the record
-	    var insertionIndex;
-	    if (previousChildKey === null) {
-	      insertionIndex = 0;
-	    } else {
-	      var previousChildIndex = _indexForKey(array, previousChildKey);
-	      insertionIndex = previousChildIndex + 1;
-	    }
-
-	    // Re-insert the record into the array
-	    array.splice(insertionIndex, 0, record);
-
-	    // Update state
-	    this.setState(this.data);
-	  }
+	  },
 
 
 	  /*************/
 	  /*  BINDING  */
 	  /*************/
-	  /**
-	   * Creates a binding between Firebase and the inputted bind variable as either an array or
-	   * an object.
-	   *
-	   * @param {Firebase} firebaseRef The Firebase ref whose data to bind.
-	   * @param {string} bindVar The state variable to which to bind the data.
-	   * @param {function} cancelCallback The Firebase reference's cancel callback.
-	   * @param {boolean} bindAsArray Whether or not to bind as an array or object.
-	   */
-	  function _bind(firebaseRef, bindVar, cancelCallback, bindAsArray) {
-	    if (Object.prototype.toString.call(firebaseRef) !== '[object Object]') {
-	      _throwError('Invalid Firebase reference');
+	  /* Creates a binding between Firebase and the inputted bind variable as an array */
+	  bindAsArray: function(firebaseRef, bindVar, cancelCallback) {
+	    this._bind(firebaseRef, bindVar, cancelCallback, true);
+	  },
+
+	  /* Creates a binding between Firebase and the inputted bind variable as an object */
+	  bindAsObject: function(firebaseRef, bindVar, cancelCallback) {
+	    this._bind(firebaseRef, bindVar, cancelCallback, false);
+	  },
+
+	  /* Creates a binding between Firebase and the inputted bind variable as either an array or object */
+	  _bind: function(firebaseRef, bindVar, cancelCallback, bindAsArray) {
+	    this._validateBindVar(bindVar);
+
+	    var errorMessage, errorCode;
+	    if (Object.prototype.toString.call(firebaseRef) !== "[object Object]") {
+	      errorMessage = "firebaseRef must be an instance of Firebase";
+	      errorCode = "INVALID_FIREBASE_REF";
+	    }
+	    else if (typeof bindAsArray !== "boolean") {
+	      errorMessage = "bindAsArray must be a boolean. Got: " + bindAsArray;
+	      errorCode = "INVALID_BIND_AS_ARRAY";
 	    }
 
-	    _validateBindVar(bindVar);
-
-	    if (typeof this.firebaseRefs[bindVar] !== 'undefined') {
-	      _throwError('this.state.' + bindVar + ' is already bound to a Firebase reference');
+	    if (typeof errorMessage !== "undefined") {
+	      var error = new Error("ReactFire: " + errorMessage);
+	      error.code = errorCode;
+	      throw error;
 	    }
 
-	    // Keep track of the Firebase reference we are setting up listeners on
 	    this.firebaseRefs[bindVar] = firebaseRef.ref();
-
-	    if (bindAsArray) {
-	      // Set initial state to an empty array
-	      this.data[bindVar] = [];
-	      this.setState(this.data);
-
-	      // Add listeners for all 'child_*' events
-	      this.firebaseListeners[bindVar] = {
-	        child_added: firebaseRef.on('child_added', _arrayChildAdded.bind(this, bindVar), cancelCallback),
-	        child_removed: firebaseRef.on('child_removed', _arrayChildRemoved.bind(this, bindVar), cancelCallback),
-	        child_changed: firebaseRef.on('child_changed', _arrayChildChanged.bind(this, bindVar), cancelCallback),
-	        child_moved: firebaseRef.on('child_moved', _arrayChildMoved.bind(this, bindVar), cancelCallback)
-	      };
-	    } else {
-	      // Add listener for 'value' event
-	      this.firebaseListeners[bindVar] = {
-	        value: firebaseRef.on('value', _objectValue.bind(this, bindVar), cancelCallback)
-	      };
-	    }
-	  }
-
-
-	  var ReactFireMixin = {
-	    /********************/
-	    /*  MIXIN LIFETIME  */
-	    /********************/
-	    /**
-	     * Initializes the Firebase refs and listeners arrays.
-	     **/
-	    componentWillMount: function() {
-	      this.data = {};
-	      this.firebaseRefs = {};
-	      this.firebaseListeners = {};
-	    },
-
-	    /**
-	     * Unbinds any remaining Firebase listeners.
-	     */
-	    componentWillUnmount: function() {
-	      for (var bindVar in this.firebaseRefs) {
-	        /* istanbul ignore else */
-	        if (this.firebaseRefs.hasOwnProperty(bindVar)) {
-	          this.unbind(bindVar);
-	        }
-	      }
-	    },
-
-
-	    /*************/
-	    /*  BINDING  */
-	    /*************/
-	    /**
-	     * Creates a binding between Firebase and the inputted bind variable as an array.
-	     *
-	     * @param {Firebase} firebaseRef The Firebase ref whose data to bind.
-	     * @param {string} bindVar The state variable to which to bind the data.
-	     * @param {function} cancelCallback The Firebase reference's cancel callback.
-	     */
-	    bindAsArray: function(firebaseRef, bindVar, cancelCallback) {
-	      var bindPartial = _bind.bind(this);
-	      bindPartial(firebaseRef, bindVar, cancelCallback, /* bindAsArray */ true);
-	    },
-
-	    /**
-	     * Creates a binding between Firebase and the inputted bind variable as an object.
-	     *
-	     * @param {Firebase} firebaseRef The Firebase ref whose data to bind.
-	     * @param {string} bindVar The state variable to which to bind the data.
-	     * @param {function} cancelCallback The Firebase reference's cancel callback.
-	     */
-	    bindAsObject: function(firebaseRef, bindVar, cancelCallback) {
-	      var bindPartial = _bind.bind(this);
-	      bindPartial(firebaseRef, bindVar, cancelCallback, /* bindAsArray */ false);
-	    },
-
-	    /**
-	     * Removes the binding between Firebase and the inputted bind variable.
-	     *
-	     * @param {string} bindVar The state variable to which the data is bound.
-	     * @param {function} callback Called when the data is unbound and the state has been updated.
-	     */
-	    unbind: function(bindVar, callback) {
-	      _validateBindVar(bindVar);
-
-	      if (typeof this.firebaseRefs[bindVar] === 'undefined') {
-	        _throwError('this.state.' + bindVar + ' is not bound to a Firebase reference');
-	      }
-
-	      // Turn off all Firebase listeners
-	      for (var event in this.firebaseListeners[bindVar]) {
-	        /* istanbul ignore else */
-	        if (this.firebaseListeners[bindVar].hasOwnProperty(event)) {
-	          var offListener = this.firebaseListeners[bindVar][event];
-	          this.firebaseRefs[bindVar].off(event, offListener);
-	        }
-	      }
-	      this.firebaseRefs[bindVar] = undefined;
-	      this.firebaseListeners[bindVar] = undefined;
-
-	      // Update state
+	    this.firebaseListeners[bindVar] = firebaseRef.on("value", function(dataSnapshot) {
 	      var newState = {};
-	      newState[bindVar] = undefined;
-	      this.setState(newState, callback);
+	      if (bindAsArray) {
+	        newState[bindVar] = this._toArray(dataSnapshot.val());
+	      }
+	      else {
+	        newState[bindVar] = dataSnapshot.val();
+	      }
+	      this.setState(newState);
+	    }.bind(this), cancelCallback);
+	  },
+
+	  /* Removes the binding between Firebase and the inputted bind variable */
+	  unbind: function(bindVar) {
+	    this._validateBindVar(bindVar);
+
+	    if (typeof this.firebaseRefs[bindVar] === "undefined") {
+	      var error = new Error("ReactFire: unexpected value for bindVar. \"" + bindVar + "\" was either never bound or has already been unbound");
+	      error.code = "UNBOUND_BIND_VARIABLE";
+	      throw error;
 	    }
-	  };
+
+	    this.firebaseRefs[bindVar].off("value", this.firebaseListeners[bindVar]);
+	    delete this.firebaseRefs[bindVar];
+	    delete this.firebaseListeners[bindVar];
+	  },
+
+
+	  /*************/
+	  /*  HELPERS  */
+	  /*************/
+	  /* Validates the name of the variable which is being bound */
+	  _validateBindVar: function(bindVar) {
+	    var errorMessage;
+
+	    if (typeof bindVar !== "string") {
+	      errorMessage = "bindVar must be a string. Got: " + bindVar;
+	    }
+	    else if (bindVar.length === 0) {
+	      errorMessage = "bindVar must be a non-empty string. Got: \"\"";
+	    }
+	    else if (bindVar.length > 768) {
+	      // Firebase can only stored child paths up to 768 characters
+	      errorMessage = "bindVar is too long to be stored in Firebase. Got: " + bindVar;
+	    }
+	    else if (/[\[\].#$\/\u0000-\u001F\u007F]/.test(bindVar)) {
+	      // Firebase does not allow node keys to contain the following characters
+	      errorMessage = "bindVar cannot contain any of the following characters: . # $ ] [ /. Got: " + bindVar;
+	    }
+
+	    if (typeof errorMessage !== "undefined") {
+	      var error = new Error("ReactFire: " + errorMessage);
+	      error.code = "INVALID_BIND_VARIABLE";
+	      throw error;
+	    }
+	  },
+
+
+	  /* Returns true if the inputted object is a JavaScript array */
+	  _isArray: function(obj) {
+	    return (Object.prototype.toString.call(obj) === "[object Array]");
+	  },
+
+	  /* Converts a Firebase object to a JavaScript array */
+	  _toArray: function(obj) {
+	    var out = [];
+	    if (obj) {
+	      if (this._isArray(obj)) {
+	        out = obj;
+	      }
+	      else if (typeof(obj) === "object") {
+	        for (var key in obj) {
+	          if (obj.hasOwnProperty(key)) {
+	            out.push(obj[key]);
+	          }
+	        }
+	      }
+	    }
+	    return out;
+	  }
+	};
 
 	  return ReactFireMixin;
 	}));
 
-
 /***/ },
-/* 205 */
+/* 206 */
 /***/ function(module, exports) {
 
 	/*! @license Firebase v2.2.9
