@@ -23695,14 +23695,14 @@
 	      repos: []
 	    };
 	  },
-	  componentDidMount: function componentDidMount() {
-	    // This is called when the component is mounted in the view
-	    this.ref = new Firebase('https://glaring-inferno-8473.firebaseio.com');
+	  init: function init() {
+	    // Initialise data on entry / route change
 	    // Get the data for the username passed in to the profile component. Firebase ensures that when this data changes in its database, it will be changed here as well, which in turn will update the view
 	    var childRef = this.ref.child(this.getParams().username);
 	    // bindAsArray is added by the ReactFireMixin. Here we're using it to get the notes associated with the user passed in through childRef
 	    this.bindAsArray(childRef, 'notes');
 
+	    // Get Github info for the given user (from params.username). This comes from utils/helpers.js
 	    helpers.getGithubInfo(this.getParams().username).then((function (obj) {
 	      this.setState({
 	        bio: obj.bio,
@@ -23710,9 +23710,22 @@
 	      });
 	    }).bind(this)); // bind 'this' to the .then(), so the .then() isn't using a different 'this'
 	  },
+	  componentDidMount: function componentDidMount() {
+	    // This is called when the component is mounted in the view
+	    this.ref = new Firebase('https://glaring-inferno-8473.firebaseio.com');
+	    // Initialise this.props
+	    this.init();
+	  },
 	  componentWillUnmount: function componentWillUnmount() {
 	    // Remove listener when the component is not in use
 	    this.unbind('notes');
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps() {
+	    // This function allows use to continue to listen for state changes and handle them accordingly
+	    // Unbind the current bound user's notes
+	    this.unbind('notes');
+	    // Initialise new this.props
+	    this.init();
 	  },
 	  handleAddNote: function handleAddNote(newNote) {
 	    // Function to add new notes into Firebase
