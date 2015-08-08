@@ -5,15 +5,16 @@ var Repos = require('./github/repos.js');
 var Notes = require('./notes/notes.js');
 var ReactFireMixin = require('reactfire');
 var Firebase = require('firebase');
+var helpers = require('../utils/helpers.js');
 
 var Profile = React.createClass({
   mixins: [Router.State, ReactFireMixin],
   // Set up the initial state's properties
   getInitialState: function(){
     return {
-      notes: ['Note 1', 'Note 2'],
-      bio: {name: 'David'},
-      repos: [1,2,3]
+      notes: [],
+      bio: {},
+      repos: []
     }
   },
   componentDidMount: function(){
@@ -23,6 +24,14 @@ var Profile = React.createClass({
     var childRef = this.ref.child(this.getParams().username);
     // bindAsArray is added by the ReactFireMixin. Here we're using it to get the notes associated with the user passed in through childRef
     this.bindAsArray(childRef, 'notes');
+    
+    helpers.getGithubInfo(this.getParams().username)
+      .then(function(obj){
+        this.setState({
+          bio: obj.bio,
+          repos: obj.repos
+        });
+    }.bind(this)); // bind 'this' to the .then(), so the .then() isn't using a different 'this'
   },
   componentWillUnmount: function(){
     // Remove listener when the component is not in use
