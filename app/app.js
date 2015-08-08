@@ -1,7 +1,11 @@
-var React = require('react');
-var Router = require('react-router');
-var routes = require('./config/routes');
+// ES6 import statments (replaces 'require')
+import React from 'react';
+import Router from 'react-router';
+import routes from './config/routes';
 
-Router.run(routes, function(Root){
-  React.render(<Root />, document.getElementById('app'));
+// ES6 '(argument) =>' rather than using 'function(argument)'
+// React Router will pass state argument
+Router.run(routes, (Root, state) => {
+  // {...state} copies the state properties to Root.props
+  React.render(<Root {...state} />, document.getElementById('app'));
 })

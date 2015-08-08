@@ -44,14 +44,28 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// ES6 import statments (replaces 'require')
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var Router = __webpack_require__(157);
-	var routes = __webpack_require__(196);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	Router.run(routes, function (Root) {
-	  React.render(React.createElement(Root, null), document.getElementById('app'));
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(157);
+
+	var _reactRouter2 = _interopRequireDefault(_reactRouter);
+
+	var _configRoutes = __webpack_require__(196);
+
+	var _configRoutes2 = _interopRequireDefault(_configRoutes);
+
+	// ES6 '(argument) =>' rather than using 'function(argument)'
+	// React Router will pass state argument
+	_reactRouter2['default'].run(_configRoutes2['default'], function (Root, state) {
+	  // {...state} copies the state properties to Root.props
+	  _react2['default'].render(_react2['default'].createElement(Root, state), document.getElementById('app'));
 	});
 
 /***/ },
@@ -23544,23 +23558,43 @@
 /* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// ES6 import statements, replaces 'require'
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var Main = __webpack_require__(197);
-	var Home = __webpack_require__(199);
-	var Profile = __webpack_require__(200);
-	var Router = __webpack_require__(157);
-	var DefaultRoute = Router.DefaultRoute;
-	var Route = Router.Route;
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _componentsMain = __webpack_require__(197);
+
+	var _componentsMain2 = _interopRequireDefault(_componentsMain);
+
+	var _componentsHome = __webpack_require__(199);
+
+	var _componentsHome2 = _interopRequireDefault(_componentsHome);
+
+	var _componentsProfile = __webpack_require__(200);
+
+	var _componentsProfile2 = _interopRequireDefault(_componentsProfile);
+
+	// ES6 allows you to import multiple things from one module. Because Router, Route and DefaultRoute all match names of properties in the react-router module, these can be imported easily as below, and will give access to three separate variables named Router, Route and DefaultRoute
+
+	var _reactRouter = __webpack_require__(157);
 
 	// Instructions for app.js - this ensures that the "Main" component is always displayed, and sets the default route for the sub-component to Home
-	module.exports = React.createElement(
-	  Route,
-	  { name: 'app', path: '/', handler: Main },
-	  React.createElement(Route, { name: 'profile', path: 'profile/:username', handler: Profile }),
-	  React.createElement(DefaultRoute, { handler: Home })
+	exports['default'] = _react2['default'].createElement(
+	  _reactRouter.Route,
+	  { name: 'app', path: '/', handler: _componentsMain2['default'] },
+	  _react2['default'].createElement(_reactRouter.Route, { name: 'profile', path: 'profile/:username', handler: _componentsProfile2['default'] }),
+	  _react2['default'].createElement(_reactRouter.DefaultRoute, { handler: _componentsHome2['default'] })
 	);
+	module.exports = exports['default'];
 
 /***/ },
 /* 197 */
@@ -24471,24 +24505,37 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	// Axios allows us to handle http requests
+	// ES6 import statement replaces the old 'require'
 	'use strict';
 
-	var axios = __webpack_require__(209);
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _axios = __webpack_require__(209);
+
+	var _axios2 = _interopRequireDefault(_axios);
 
 	// This function hits the Github API to return a specific user's repos, where that user is passed in to the function
 	function getRepos(username) {
-	  return axios.get('https://api.github.com/users/' + username + '/repos');
+	  // ES6 allows for string literals, so rather than 'one-string' + myVariable + 'the-rest-of-the-string', we can do this as seen below with `string{$variable}string` (note the backticks as parentheses)
+	  return _axios2['default'].get('https://api.github.com/users/' + username + '/repos');
 	};
 
 	// This function hits the Github API to return all of the info on a specific user, where that user is passed in to the function
 	function getUserInfo(username) {
-	  return axios.get('https://api.github.com/users/' + username);
+	  // See note above on ES6 string literals
+	  return _axios2['default'].get('https://api.github.com/users/' + username);
 	};
 
 	var helpers = {
+	  // ES6 shorthand - previously would have been ' getGithubInfo = function(){ } '
 	  getGithubInfo: function getGithubInfo(username) {
 	    // axios.all allows multiple promises to be run at the same time, and only fires the .then() when all of those promises have been fulfilled. The argument passed in to the .then() is an array containing all of the promises. This array assigns index based on the order in which the promise was *called*, not *returned*. Which is handy because otherwise you'd have no reliable way of knowing which position anything was in!
-	    return axios.all([getRepos(username), getUserInfo(username)]).then(function (arr) {
+	    // Note the ES6 use of "=>" - this allows the .then() to keep the same 'this' context; not that I'm using 'this' here but it saved me a tiny bit of typing before I typed this comment to explain it
+	    return _axios2['default'].all([getRepos(username), getUserInfo(username)]).then(function (arr) {
 	      return {
 	        repos: arr[0].data,
 	        bio: arr[1].data
@@ -24497,7 +24544,9 @@
 	  }
 	};
 
-	module.exports = helpers;
+	// ES6 export (as ES6 comes with its own module system). This replaces 'module.exports = helpers'
+	exports['default'] = helpers;
+	module.exports = exports['default'];
 
 /***/ },
 /* 209 */
