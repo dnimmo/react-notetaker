@@ -23819,95 +23819,168 @@
 /* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// ES6's 'import' replaces 'require'
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var Router = __webpack_require__(157);
-	var UserProfile = __webpack_require__(201);
-	var Repos = __webpack_require__(202);
-	var Notes = __webpack_require__(203);
-	var ReactFireMixin = __webpack_require__(206);
-	var Firebase = __webpack_require__(207);
-	var helpers = __webpack_require__(208);
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
-	var Profile = React.createClass({
-	  displayName: 'Profile',
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	  mixins: [Router.State, ReactFireMixin],
-	  // Set up the initial state's properties
-	  getInitialState: function getInitialState() {
-	    return {
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _githubUserProfileJs = __webpack_require__(201);
+
+	var _githubUserProfileJs2 = _interopRequireDefault(_githubUserProfileJs);
+
+	var _githubReposJs = __webpack_require__(202);
+
+	var _githubReposJs2 = _interopRequireDefault(_githubReposJs);
+
+	var _notesNotesJs = __webpack_require__(203);
+
+	var _notesNotesJs2 = _interopRequireDefault(_notesNotesJs);
+
+	var _firebase = __webpack_require__(206);
+
+	var _firebase2 = _interopRequireDefault(_firebase);
+
+	var _utilsHelpersJs = __webpack_require__(207);
+
+	var _utilsHelpersJs2 = _interopRequireDefault(_utilsHelpersJs);
+
+	var _reBase = __webpack_require__(227);
+
+	var _reBase2 = _interopRequireDefault(_reBase);
+
+	// Link to Firebase
+	var base = _reBase2['default'].createClass('https://glaring-inferno-8473.firebaseio.com/');
+
+	var Profile = (function (_React$Component) {
+	  _inherits(Profile, _React$Component);
+
+	  // As I'm using ES6, I can call a constructor as soon as a component is called into the view
+
+	  function Profile(props) {
+	    _classCallCheck(this, Profile);
+
+	    // You can't use 'this' without passing props in to your constructor
+	    _get(Object.getPrototypeOf(Profile.prototype), 'constructor', this).call(this, props);
+	    this.state = {
 	      notes: [],
 	      bio: {},
 	      repos: []
 	    };
-	  },
-	  init: function init() {
-	    // Initialise data on entry / route change
-	    // Get the data for the username passed in to the profile component. Firebase ensures that when this data changes in its database, it will be changed here as well, which in turn will update the view
-	    var childRef = this.ref.child(this.getParams().username);
-	    // bindAsArray is added by the ReactFireMixin. Here we're using it to get the notes associated with the user passed in through childRef
-	    this.bindAsArray(childRef, 'notes');
-
-	    // Get Github info for the given user (from params.username). This comes from utils/helpers.js
-	    helpers.getGithubInfo(this.getParams().username).then((function (obj) {
-	      this.setState({
-	        bio: obj.bio,
-	        repos: obj.repos
-	      });
-	    }).bind(this)); // bind 'this' to the .then(), so the .then() isn't using a different 'this'
-	  },
-	  componentDidMount: function componentDidMount() {
-	    // This is called when the component is mounted in the view
-	    this.ref = new Firebase('https://glaring-inferno-8473.firebaseio.com');
-	    // Initialise this.props
-	    this.init();
-	  },
-	  componentWillUnmount: function componentWillUnmount() {
-	    // Remove listener when the component is not in use
-	    this.unbind('notes');
-	  },
-	  componentWillReceiveProps: function componentWillReceiveProps() {
-	    // This function allows use to continue to listen for state changes and handle them accordingly
-	    // Unbind the current bound user's notes
-	    this.unbind('notes');
-	    // Initialise new this.props
-	    this.init();
-	  },
-	  handleAddNote: function handleAddNote(newNote) {
-	    // Function to add new notes into Firebase
-	    this.ref.child(this.getParams().username).set(this.state.notes.concat([newNote]));
-	  },
-	  render: function render() {
-	    // params.username is set in routes.js
-	    var username = this.getParams().username;
-	    // This function controls the profile view, which is made up of three components: UserProfile (github/user-profile.js), Repos (github/repos.js) and Notes (notes/notes.js). The notes function passes the addNote function which is defined further up this file, along with any pre-existing notes, which it gets from Firebase in the 'componentDidMount' function (further up this file) under this.bindAsArray.
-	    return React.createElement(
-	      'div',
-	      { className: 'row' },
-	      React.createElement(
-	        'div',
-	        { className: 'col-md-4' },
-	        React.createElement(UserProfile, { username: username, bio: this.state.bio })
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'col-md-4' },
-	        React.createElement(Repos, { username: username, repos: this.state.repos })
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'col-md-4' },
-	        React.createElement(Notes, {
-	          username: username,
-	          notes: this.state.notes,
-	          addNote: this.handleAddNote })
-	      )
-	    );
 	  }
-	});
 
-	module.exports = Profile;
+	  _createClass(Profile, [{
+	    key: 'init',
+	    value: function init() {
+	      var _this = this;
+
+	      // Initialise data on entry / route change
+	      // Get the data for the username passed in to the profile component. Firebase ensures that when this data changes in its database, it will be changed here as well, which in turn will update the view
+	      this.ref = base.bindToState(this.router.getCurrentParams().username, {
+	        context: this,
+	        asArray: true,
+	        state: 'notes'
+	      });
+	      // Get Github info for the given user (from params.username). This comes from utils/helpers.js
+	      _utilsHelpersJs2['default'].getGithubInfo(this.router.getCurrentParams().username).then(function (obj) {
+	        _this.setState({
+	          bio: obj.bio,
+	          repos: obj.repos
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      this.router = this.context.router;
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      // This is called when the component is mounted in the view
+	      // Initialise this.props
+	      this.init();
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      // Unbind the current notes when state changes (so that you don't see notes for the last person you looked at on the next person you look at!)
+	      base.removeBinding(this.ref);
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps() {
+	      // This function allows us to continue to listen for state changes and handle them accordingly
+	      base.removeBinding(this.ref);
+	      // Initialise new this.props
+	      this.init();
+	    }
+	  }, {
+	    key: 'handleAddNote',
+	    value: function handleAddNote(newNote) {
+	      // Allow users to add a new note into the database
+	      base.post(this.router.getCurrentParams().username, {
+	        data: this.state.notes.concat([newNote])
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      // params.username is set in routes.js
+	      var username = this.router.getCurrentParams().username;
+	      // This function controls the profile view, which is made up of three components: UserProfile (github/user-profile.js), Repos (github/repos.js) and Notes (notes/notes.js). The notes function passes the addNote function which is defined further up this file, along with any pre-existing notes, which it gets from Firebase in the 'componentDidMount' function (further up this file) under this.bindAsArray.
+	      return _react2['default'].createElement(
+	        'div',
+	        { className: 'row' },
+	        _react2['default'].createElement(
+	          'div',
+	          { className: 'col-md-4' },
+	          _react2['default'].createElement(_githubUserProfileJs2['default'], { username: username, bio: this.state.bio })
+	        ),
+	        _react2['default'].createElement(
+	          'div',
+	          { className: 'col-md-4' },
+	          _react2['default'].createElement(_githubReposJs2['default'], { username: username, repos: this.state.repos })
+	        ),
+	        _react2['default'].createElement(
+	          'div',
+	          { className: 'col-md-4' },
+	          _react2['default'].createElement(_notesNotesJs2['default'], {
+	            username: username,
+	            notes: this.state.notes,
+	            addNote: this.handleAddNote.bind(this) })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Profile;
+	})(_react2['default'].Component);
+
+	;
+
+	Profile.contextTypes = {
+	  router: _react2['default'].PropTypes.func.isRequired
+	};
+
+	// ES6's export default replaces module.exports
+	exports['default'] = Profile;
+	module.exports = exports['default'];
 
 /***/ },
 /* 201 */
@@ -24350,176 +24423,6 @@
 
 /***/ },
 /* 206 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * ReactFire is an open-source JavaScript library that allows you to add a
-	 * realtime data source to your React apps by providing and easy way to let
-	 * Firebase populate the state of React components.
-	 *
-	 * ReactFire 0.4.0
-	 * https://github.com/firebase/reactfire/
-	 * License: MIT
-	 */
-
-	;(function (root, factory) {
-	  "use strict";
-	  if (true) {
-	    // AMD
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
-	      return (root.ReactFireMixin = factory());
-	    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	  } else if (typeof exports === "object") {
-	    // CommonJS
-	    module.exports = factory();
-	  } else {
-	    // Global variables
-	    root.ReactFireMixin = factory();
-	  }
-	}(this, function() {
-	  "use strict";
-
-	var ReactFireMixin = {
-	  /********************/
-	  /*  MIXIN LIFETIME  */
-	  /********************/
-	  /* Initializes the Firebase binding refs array */
-	  componentWillMount: function() {
-	    this.firebaseRefs = {};
-	    this.firebaseListeners = {};
-	  },
-
-	  /* Removes any remaining Firebase bindings */
-	  componentWillUnmount: function() {
-	    for (var key in this.firebaseRefs) {
-	      if (this.firebaseRefs.hasOwnProperty(key)) {
-	        this.unbind(key);
-	      }
-	    }
-	  },
-
-
-	  /*************/
-	  /*  BINDING  */
-	  /*************/
-	  /* Creates a binding between Firebase and the inputted bind variable as an array */
-	  bindAsArray: function(firebaseRef, bindVar, cancelCallback) {
-	    this._bind(firebaseRef, bindVar, cancelCallback, true);
-	  },
-
-	  /* Creates a binding between Firebase and the inputted bind variable as an object */
-	  bindAsObject: function(firebaseRef, bindVar, cancelCallback) {
-	    this._bind(firebaseRef, bindVar, cancelCallback, false);
-	  },
-
-	  /* Creates a binding between Firebase and the inputted bind variable as either an array or object */
-	  _bind: function(firebaseRef, bindVar, cancelCallback, bindAsArray) {
-	    this._validateBindVar(bindVar);
-
-	    var errorMessage, errorCode;
-	    if (Object.prototype.toString.call(firebaseRef) !== "[object Object]") {
-	      errorMessage = "firebaseRef must be an instance of Firebase";
-	      errorCode = "INVALID_FIREBASE_REF";
-	    }
-	    else if (typeof bindAsArray !== "boolean") {
-	      errorMessage = "bindAsArray must be a boolean. Got: " + bindAsArray;
-	      errorCode = "INVALID_BIND_AS_ARRAY";
-	    }
-
-	    if (typeof errorMessage !== "undefined") {
-	      var error = new Error("ReactFire: " + errorMessage);
-	      error.code = errorCode;
-	      throw error;
-	    }
-
-	    this.firebaseRefs[bindVar] = firebaseRef.ref();
-	    this.firebaseListeners[bindVar] = firebaseRef.on("value", function(dataSnapshot) {
-	      var newState = {};
-	      if (bindAsArray) {
-	        newState[bindVar] = this._toArray(dataSnapshot.val());
-	      }
-	      else {
-	        newState[bindVar] = dataSnapshot.val();
-	      }
-	      this.setState(newState);
-	    }.bind(this), cancelCallback);
-	  },
-
-	  /* Removes the binding between Firebase and the inputted bind variable */
-	  unbind: function(bindVar) {
-	    this._validateBindVar(bindVar);
-
-	    if (typeof this.firebaseRefs[bindVar] === "undefined") {
-	      var error = new Error("ReactFire: unexpected value for bindVar. \"" + bindVar + "\" was either never bound or has already been unbound");
-	      error.code = "UNBOUND_BIND_VARIABLE";
-	      throw error;
-	    }
-
-	    this.firebaseRefs[bindVar].off("value", this.firebaseListeners[bindVar]);
-	    delete this.firebaseRefs[bindVar];
-	    delete this.firebaseListeners[bindVar];
-	  },
-
-
-	  /*************/
-	  /*  HELPERS  */
-	  /*************/
-	  /* Validates the name of the variable which is being bound */
-	  _validateBindVar: function(bindVar) {
-	    var errorMessage;
-
-	    if (typeof bindVar !== "string") {
-	      errorMessage = "bindVar must be a string. Got: " + bindVar;
-	    }
-	    else if (bindVar.length === 0) {
-	      errorMessage = "bindVar must be a non-empty string. Got: \"\"";
-	    }
-	    else if (bindVar.length > 768) {
-	      // Firebase can only stored child paths up to 768 characters
-	      errorMessage = "bindVar is too long to be stored in Firebase. Got: " + bindVar;
-	    }
-	    else if (/[\[\].#$\/\u0000-\u001F\u007F]/.test(bindVar)) {
-	      // Firebase does not allow node keys to contain the following characters
-	      errorMessage = "bindVar cannot contain any of the following characters: . # $ ] [ /. Got: " + bindVar;
-	    }
-
-	    if (typeof errorMessage !== "undefined") {
-	      var error = new Error("ReactFire: " + errorMessage);
-	      error.code = "INVALID_BIND_VARIABLE";
-	      throw error;
-	    }
-	  },
-
-
-	  /* Returns true if the inputted object is a JavaScript array */
-	  _isArray: function(obj) {
-	    return (Object.prototype.toString.call(obj) === "[object Array]");
-	  },
-
-	  /* Converts a Firebase object to a JavaScript array */
-	  _toArray: function(obj) {
-	    var out = [];
-	    if (obj) {
-	      if (this._isArray(obj)) {
-	        out = obj;
-	      }
-	      else if (typeof(obj) === "object") {
-	        for (var key in obj) {
-	          if (obj.hasOwnProperty(key)) {
-	            out.push(obj[key]);
-	          }
-	        }
-	      }
-	    }
-	    return out;
-	  }
-	};
-
-	  return ReactFireMixin;
-	}));
-
-/***/ },
-/* 207 */
 /***/ function(module, exports) {
 
 	/*! @license Firebase v2.2.9
@@ -24790,7 +24693,7 @@
 
 
 /***/ },
-/* 208 */
+/* 207 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Axios allows us to handle http requests
@@ -24803,7 +24706,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _axios = __webpack_require__(209);
+	var _axios = __webpack_require__(208);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
@@ -24838,28 +24741,28 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 209 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(210);
+	module.exports = __webpack_require__(209);
 
 /***/ },
-/* 210 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var defaults = __webpack_require__(211);
-	var utils = __webpack_require__(212);
-	var deprecatedMethod = __webpack_require__(213);
-	var dispatchRequest = __webpack_require__(214);
-	var InterceptorManager = __webpack_require__(221);
+	var defaults = __webpack_require__(210);
+	var utils = __webpack_require__(211);
+	var deprecatedMethod = __webpack_require__(212);
+	var dispatchRequest = __webpack_require__(213);
+	var InterceptorManager = __webpack_require__(220);
 
 	// Polyfill ES6 Promise if needed
 	(function () {
 	  // webpack is being used to set es6-promise to the native Promise
 	  // for the standalone build. It's necessary to make sure polyfill exists.
-	  var P = __webpack_require__(222);
+	  var P = __webpack_require__(221);
 	  if (P && typeof P.polyfill === 'function') {
 	    P.polyfill();
 	  }
@@ -24922,7 +24825,7 @@
 	axios.all = function (promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(227);
+	axios.spread = __webpack_require__(226);
 
 	// Expose interceptors
 	axios.interceptors = {
@@ -24961,12 +24864,12 @@
 
 
 /***/ },
-/* 211 */
+/* 210 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(212);
+	var utils = __webpack_require__(211);
 
 	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
 	var DEFAULT_CONTENT_TYPE = {
@@ -25019,7 +24922,7 @@
 
 
 /***/ },
-/* 212 */
+/* 211 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -25242,7 +25145,7 @@
 
 
 /***/ },
-/* 213 */
+/* 212 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -25270,7 +25173,7 @@
 
 
 /***/ },
-/* 214 */
+/* 213 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -25287,11 +25190,11 @@
 	    try {
 	      // For browsers use XHR adapter
 	      if (typeof window !== 'undefined') {
-	        __webpack_require__(215)(resolve, reject, config);
+	        __webpack_require__(214)(resolve, reject, config);
 	      }
 	      // For node use HTTP adapter
 	      else if (typeof process !== 'undefined') {
-	        __webpack_require__(215)(resolve, reject, config);
+	        __webpack_require__(214)(resolve, reject, config);
 	      }
 	    } catch (e) {
 	      reject(e);
@@ -25303,20 +25206,20 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 215 */
+/* 214 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	/*global ActiveXObject:true*/
 
-	var defaults = __webpack_require__(211);
-	var utils = __webpack_require__(212);
-	var buildUrl = __webpack_require__(216);
-	var cookies = __webpack_require__(217);
-	var parseHeaders = __webpack_require__(218);
-	var transformData = __webpack_require__(219);
-	var urlIsSameOrigin = __webpack_require__(220);
+	var defaults = __webpack_require__(210);
+	var utils = __webpack_require__(211);
+	var buildUrl = __webpack_require__(215);
+	var cookies = __webpack_require__(216);
+	var parseHeaders = __webpack_require__(217);
+	var transformData = __webpack_require__(218);
+	var urlIsSameOrigin = __webpack_require__(219);
 
 	module.exports = function xhrAdapter(resolve, reject, config) {
 	  // Transform request data
@@ -25415,12 +25318,12 @@
 
 
 /***/ },
-/* 216 */
+/* 215 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(212);
+	var utils = __webpack_require__(211);
 
 	function encode(val) {
 	  return encodeURIComponent(val).
@@ -25473,12 +25376,12 @@
 
 
 /***/ },
-/* 217 */
+/* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(212);
+	var utils = __webpack_require__(211);
 
 	module.exports = {
 	  write: function write(name, value, expires, path, domain, secure) {
@@ -25516,12 +25419,12 @@
 
 
 /***/ },
-/* 218 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(212);
+	var utils = __webpack_require__(211);
 
 	/**
 	 * Parse headers into an object
@@ -25556,12 +25459,12 @@
 
 
 /***/ },
-/* 219 */
+/* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(212);
+	var utils = __webpack_require__(211);
 
 	/**
 	 * Transform the data for a request or a response
@@ -25581,12 +25484,12 @@
 
 
 /***/ },
-/* 220 */
+/* 219 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(212);
+	var utils = __webpack_require__(211);
 	var msie = /(msie|trident)/i.test(navigator.userAgent);
 	var urlParsingNode = document.createElement('a');
 	var originUrl;
@@ -25639,12 +25542,12 @@
 
 
 /***/ },
-/* 221 */
+/* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(212);
+	var utils = __webpack_require__(211);
 
 	function InterceptorManager() {
 	  this.handlers = [];
@@ -25697,7 +25600,7 @@
 
 
 /***/ },
-/* 222 */
+/* 221 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, global, module) {/*!
@@ -25836,7 +25739,7 @@
 	    function lib$es6$promise$asap$$attemptVertex() {
 	      try {
 	        var r = require;
-	        var vertx = __webpack_require__(225);
+	        var vertx = __webpack_require__(224);
 	        lib$es6$promise$asap$$vertxNext = vertx.runOnLoop || vertx.runOnContext;
 	        return lib$es6$promise$asap$$useVertxTimer();
 	      } catch(e) {
@@ -26661,7 +26564,7 @@
 	    };
 
 	    /* global define:true module:true window: true */
-	    if ("function" === 'function' && __webpack_require__(226)['amd']) {
+	    if ("function" === 'function' && __webpack_require__(225)['amd']) {
 	      !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return lib$es6$promise$umd$$ES6Promise; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    } else if (typeof module !== 'undefined' && module['exports']) {
 	      module['exports'] = lib$es6$promise$umd$$ES6Promise;
@@ -26673,10 +26576,10 @@
 	}).call(this);
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(223).setImmediate, (function() { return this; }()), __webpack_require__(224)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(222).setImmediate, (function() { return this; }()), __webpack_require__(223)(module)))
 
 /***/ },
-/* 223 */
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(3).nextTick;
@@ -26755,10 +26658,10 @@
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(223).setImmediate, __webpack_require__(223).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(222).setImmediate, __webpack_require__(222).clearImmediate))
 
 /***/ },
-/* 224 */
+/* 223 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -26774,20 +26677,20 @@
 
 
 /***/ },
-/* 225 */
+/* 224 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 226 */
+/* 225 */
 /***/ function(module, exports) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 227 */
+/* 226 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -26818,6 +26721,404 @@
 	  };
 	};
 
+
+/***/ },
+/* 227 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(228);
+
+
+
+/***/ },
+/* 228 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function webpackUniversalModuleDefinition(root, factory) {
+		if(true)
+			module.exports = factory(__webpack_require__(206));
+		else if(typeof define === 'function' && define.amd)
+			define(["firebase"], factory);
+		else {
+			var a = typeof exports === 'object' ? factory(require("firebase")) : factory(root["Firebase"]);
+			for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+		}
+	})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
+	return /******/ (function(modules) { // webpackBootstrap
+	/******/ 	// The module cache
+	/******/ 	var installedModules = {};
+
+	/******/ 	// The require function
+	/******/ 	function __webpack_require__(moduleId) {
+
+	/******/ 		// Check if module is in cache
+	/******/ 		if(installedModules[moduleId])
+	/******/ 			return installedModules[moduleId].exports;
+
+	/******/ 		// Create a new module (and put it into the cache)
+	/******/ 		var module = installedModules[moduleId] = {
+	/******/ 			exports: {},
+	/******/ 			id: moduleId,
+	/******/ 			loaded: false
+	/******/ 		};
+
+	/******/ 		// Execute the module function
+	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+	/******/ 		// Flag the module as loaded
+	/******/ 		module.loaded = true;
+
+	/******/ 		// Return the exports of the module
+	/******/ 		return module.exports;
+	/******/ 	}
+
+
+	/******/ 	// expose the modules object (__webpack_modules__)
+	/******/ 	__webpack_require__.m = modules;
+
+	/******/ 	// expose the module cache
+	/******/ 	__webpack_require__.c = installedModules;
+
+	/******/ 	// __webpack_public_path__
+	/******/ 	__webpack_require__.p = "";
+
+	/******/ 	// Load entry module and return exports
+	/******/ 	return __webpack_require__(0);
+	/******/ })
+	/************************************************************************/
+	/******/ ([
+	/* 0 */
+	/***/ function(module, exports, __webpack_require__) {
+
+		'use strict';
+
+		function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+		module.exports = (function () {
+		  var Firebase = __webpack_require__(1);
+
+		  var baseUrl = '';
+		  var rebase;
+		  var firebaseRefs = {};
+		  var firebaseListeners = {};
+
+		  var optionValidators = {
+		    notObject: function notObject(options) {
+		      if (!_isObject(options)) {
+		        _throwError('The options argument must be an object. Instead, got ' + options, 'INVALID_OPTIONS');
+		      }
+		    },
+		    context: function context(options) {
+		      this.notObject(options);
+		      if (!options.context || !_isObject(options.context)) {
+		        this.makeError('context', 'object', options.context);
+		      }
+		    },
+		    state: function state(options) {
+		      this.notObject(options);
+		      if (!options.state || typeof options.state !== 'string') {
+		        this.makeError('state', 'string', options.state);
+		      }
+		    },
+		    then: function then(options) {
+		      this.notObject(options);
+		      if (typeof options.then === 'undefined' || typeof options.then !== 'function') {
+		        this.makeError('then', 'function', options.then);
+		      }
+		    },
+		    data: function data(options) {
+		      this.notObject(options);
+		      if (typeof options.data === 'undefined') {
+		        this.makeError('data', 'ANY', options.data);
+		      }
+		    },
+		    query: function query(options) {
+		      this.notObject(options);
+		      var validQueries = ['limitToFirst', 'limitToLast', 'orderByChild', 'orderByValue', 'orderByKey', 'orderByPriority', 'startAt', 'endAt', 'equalTo'];
+		      var queries = options.queries;
+		      for (var key in queries) {
+		        if (queries.hasOwnProperty(key) && validQueries.indexOf(key) === -1) {
+		          _throwError('The query field must contain valid Firebase queries.  Expected one of [' + validQueries.join(', ') + ']. Instead, got ' + key, 'INVALID_OPTIONS');
+		        }
+		      }
+		    },
+		    makeError: function makeError(prop, type, actual) {
+		      _throwError('The options argument must contain a ' + prop + ' property of type ' + type + '. Instead, got ' + actual, 'INVALID_OPTIONS');
+		    }
+		  };
+
+		  function _toArray(obj) {
+		    var arr = [];
+		    for (var key in obj) {
+		      if (obj.hasOwnProperty(key)) {
+		        if (_isObject(obj[key])) {
+		          obj[key].key = key;
+		        }
+		        arr.push(obj[key]);
+		      }
+		    }
+		    return arr;
+		  };
+
+		  function _isObject(obj) {
+		    return Object.prototype.toString.call(obj) === '[object Object]' ? true : false;
+		  };
+
+		  function _throwError(msg, code) {
+		    var err = new Error('REBASE: ' + msg);
+		    err.code = code;
+		    throw err;
+		  };
+
+		  function _validateBaseURL(url) {
+		    var defaultError = 'Rebase.createClass failed.';
+		    var errorMsg;
+		    if (typeof url !== 'string') {
+		      errorMsg = defaultError + ' URL must be a string.';
+		    } else if (!url || arguments.length > 1) {
+		      errorMsg = defaultError + ' Was called with more or less than 1 argument. Expects 1.';
+		    } else if (url.length === '') {
+		      errorMsg = defaultError + ' URL cannot be an empty string.';
+		    } else if (url.indexOf('.firebaseio.com') === -1) {
+		      errorMsg = defaultError + ' URL must be in the format of https://<YOUR FIREBASE>.firebaseio.com. Instead, got ' + url + '.';
+		    }
+
+		    if (typeof errorMsg !== 'undefined') {
+		      _throwError(errorMsg, 'INVALID_URL');
+		    }
+		  };
+
+		  function _validateEndpoint(endpoint) {
+		    var defaultError = 'The Firebase endpoint you are trying to listen to';
+		    var errorMsg;
+		    if (typeof endpoint !== 'string') {
+		      errorMsg = defaultError + ' must be a string. Instead, got ' + endpoint;
+		    } else if (endpoint.length === 0) {
+		      errorMsg = defaultError + ' must be a non-empty string. Instead, got ' + endpoint;
+		    } else if (endpoint.length > 768) {
+		      errorMsg = defaultError + ' is too long to be stored in Firebase. It be less than 768 characters.';
+		    } else if (/^$|[\[\]\.\#\$]/.test(endpoint)) {
+		      errorMsg = defaultError + ' in invalid. Paths must be non-empty strings and can\'t contain ".", "#", "$", "[", or "]".';
+		    }
+
+		    if (typeof errorMsg !== 'undefined') {
+		      _throwError(errorMsg, 'INVALID_ENDPOINT');
+		    }
+		  };
+
+		  function _setState(newState) {
+		    this.setState(newState);
+		  };
+
+		  function _returnRef(endpoint, method) {
+		    return { endpoint: endpoint, method: method };
+		  };
+
+		  function _fetch(endpoint, options) {
+		    _validateEndpoint(endpoint);
+		    optionValidators.context(options);
+		    optionValidators.then(options);
+		    options.queries && optionValidators.query(options);
+		    var ref = new Firebase(baseUrl + '/' + endpoint);
+		    ref = _addQueries(ref, options.queries);
+		    ref.once('value', function (snapshot) {
+		      var data = options.asArray === true ? _toArray(snapshot.val()) : snapshot.val();
+		      options.then.call(options.context, data);
+		    });
+		  };
+
+		  function _firebaseRefsMixin(endpoint, invoker, ref) {
+		    if (!_isObject(firebaseRefs[endpoint])) {
+		      firebaseRefs[endpoint] = _defineProperty({}, invoker, ref.ref());
+		      firebaseListeners[endpoint] = {};
+		    } else if (!firebaseRefs[endpoint][invoker]) {
+		      firebaseRefs[endpoint][invoker] = ref.ref();
+		    } else {
+		      _throwError('Endpoint (' + endpoint + ') already has listener ' + invoker, 'INVALID_ENDPOINT');
+		    }
+		  };
+
+		  function _addListener(endpoint, invoker, options, ref) {
+		    ref = _addQueries(ref, options.queries);
+		    firebaseListeners[endpoint][invoker] = ref.on('value', function (snapshot) {
+		      var data = snapshot.val();
+		      data = data === null ? (options.asArray === true ? [] : {}) : data;
+		      if (invoker === 'listenTo') {
+		        options.asArray === true ? options.then.call(options.context, _toArray(data)) : options.then.call(options.context, data);
+		      } else if (invoker === 'syncState') {
+		        data = options.asArray === true ? _toArray(data) : data;
+		        options.reactSetState.call(options.context, _defineProperty({}, options.state, data));
+		      } else if (invoker === 'bindToState') {
+		        var newState = {};
+		        options.asArray === true ? newState[options.state] = _toArray(data) : newState[options.state] = data;
+		        _setState.call(options.context, newState);
+		      }
+		    });
+		  };
+
+		  function _bind(endpoint, options, invoker) {
+		    _validateEndpoint(endpoint);
+		    optionValidators.context(options);
+		    invoker === 'listenTo' && optionValidators.then(options);
+		    invoker === 'bindToState' && optionValidators.state(options);
+		    options.queries && optionValidators.query(options);
+		    var ref = new Firebase(baseUrl + '/' + endpoint);
+		    _firebaseRefsMixin(endpoint, invoker, ref);
+		    _addListener(endpoint, invoker, options, ref);
+		    return _returnRef(endpoint, invoker);
+		  };
+
+		  function _updateSyncState(ref, data, key) {
+		    if (_isObject(data)) {
+		      for (var prop in data) {
+		        _updateSyncState(ref.child(prop), data[prop], prop);
+		      }
+		    } else {
+		      ref.set(data);
+		    }
+		  };
+
+		  function _sync(endpoint, options) {
+		    _validateEndpoint(endpoint);
+		    optionValidators.context(options);
+		    optionValidators.state(options);
+		    options.queries && optionValidators.query(options);
+		    if (_sync.called !== true) {
+		      _sync.reactSetState = options.context.setState;
+		      _sync.called = true;
+		    } else {
+		      options.context.setState = _sync.reactSetState;
+		    }
+		    options.reactSetState = options.context.setState;
+		    var ref = new Firebase(baseUrl + '/' + endpoint);
+		    _firebaseRefsMixin(endpoint, 'syncState', ref);
+		    _addListener(endpoint, 'syncState', options, ref);
+		    options.context.setState = function (data) {
+		      for (var key in data) {
+		        if (data.hasOwnProperty(key)) {
+		          if (key === options.state) {
+		            _updateSyncState.call(this, ref, data[key], key);
+		          } else {
+		            options.reactSetState.call(options.context, data);
+		          }
+		        }
+		      }
+		    };
+		    return _returnRef(endpoint, 'syncState');
+		  };
+
+		  function _post(endpoint, options) {
+		    _validateEndpoint(endpoint);
+		    optionValidators.data(options);
+		    var ref = new Firebase(baseUrl + '/' + endpoint);
+		    if (options.then) {
+		      ref.set(options.data, options.then);
+		    } else {
+		      ref.set(options.data);
+		    }
+		  };
+
+		  function _addQueries(ref, queries) {
+		    var needArgs = {
+		      limitToFirst: true,
+		      limitToLast: true,
+		      orderByChild: true,
+		      startAt: true,
+		      endAt: true,
+		      equalTo: true
+		    };
+		    for (var key in queries) {
+		      if (queries.hasOwnProperty(key)) {
+		        if (needArgs[key]) {
+		          ref = ref[key](queries[key]);
+		        } else {
+		          ref = ref[key]();
+		        }
+		      }
+		    }
+		    return ref;
+		  };
+
+		  function _removeBinding(refObj) {
+		    _validateEndpoint(refObj.endpoint);
+		    if (typeof firebaseRefs[refObj.endpoint][refObj.method] === 'undefined') {
+		      var errorMsg = 'Unexpected value for endpoint. ' + refObj.endpoint + ' was either never bound or has already been unbound.';
+		      _throwError(errorMsg, 'UNBOUND_ENDPOINT_VARIABLE');
+		    }
+		    firebaseRefs[refObj.endpoint][refObj.method].off('value', firebaseListeners[refObj.endpoint][refObj.method]);
+		    delete firebaseRefs[refObj.endpoint][refObj.method];
+		    delete firebaseListeners[refObj.endpoint][refObj.method];
+		  };
+
+		  function _reset() {
+		    baseUrl = '';
+		    rebase = undefined;
+		    for (var key in firebaseRefs) {
+		      if (firebaseRefs.hasOwnProperty(key)) {
+		        for (var prop in firebaseRefs[key]) {
+		          if (firebaseRefs[key].hasOwnProperty(prop)) {
+		            firebaseRefs[key][prop].off('value', firebaseListeners[key][prop]);
+		            delete firebaseRefs[key][prop];
+		            delete firebaseListeners[key][prop];
+		          }
+		        }
+		      }
+		    }
+		    firebaseRefs = {};
+		    firebaseListeners = {};
+		  };
+
+		  function init() {
+		    return {
+		      listenTo: function listenTo(endpoint, options) {
+		        return _bind(endpoint, options, 'listenTo');
+		      },
+		      bindToState: function bindToState(endpoint, options) {
+		        return _bind(endpoint, options, 'bindToState');
+		      },
+		      syncState: function syncState(endpoint, options) {
+		        return _sync(endpoint, options);
+		      },
+		      fetch: function fetch(endpoint, options) {
+		        _fetch(endpoint, options);
+		      },
+		      post: function post(endpoint, options) {
+		        _post(endpoint, options);
+		      },
+		      removeBinding: function removeBinding(endpoint) {
+		        _removeBinding(endpoint, true);
+		      },
+		      reset: function reset() {
+		        _reset();
+		      }
+		    };
+		  };
+
+		  return {
+		    createClass: function createClass(url) {
+		      if (rebase) {
+		        return rebase;
+		      }
+
+		      _validateBaseURL(url);
+		      baseUrl = url;
+		      rebase = init();
+
+		      return rebase;
+		    }
+		  };
+		})();
+
+	/***/ },
+	/* 1 */
+	/***/ function(module, exports) {
+
+		module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+	/***/ }
+	/******/ ])
+	});
+	;
 
 /***/ }
 /******/ ]);

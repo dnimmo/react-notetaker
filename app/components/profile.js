@@ -1,62 +1,70 @@
-var React = require('react');
-var Router = require('react-router');
-var UserProfile = require('./github/user-profile.js');
-var Repos = require('./github/repos.js');
-var Notes = require('./notes/notes.js');
-var ReactFireMixin = require('reactfire');
-var Firebase = require('firebase');
-var helpers = require('../utils/helpers.js');
+// ES6's 'import' replaces 'require'
+import React from 'react';
+import UserProfile from './github/user-profile.js';
+import Repos from './github/repos.js';
+import Notes from './notes/notes.js';
+import Firebase from 'firebase';
+import helpers from '../utils/helpers.js';
+import Rebase from 're-base';
 
-var Profile = React.createClass({
-  mixins: [Router.State, ReactFireMixin],
-  // Set up the initial state's properties
-  getInitialState: function(){
-    return {
+// Link to Firebase
+var base = Rebase.createClass('https://glaring-inferno-8473.firebaseio.com/');
+
+class Profile extends React.Component{
+  // As I'm using ES6, I can call a constructor as soon as a component is called into the view
+  constructor(props){
+    // You can't use 'this' without passing props in to your constructor
+    super(props);
+    this.state = {
       notes: [],
       bio: {},
-      repos: []
+      repos: []      
     }
-  },
-  init: function(){
+  }
+  init(){
     // Initialise data on entry / route change
     // Get the data for the username passed in to the profile component. Firebase ensures that when this data changes in its database, it will be changed here as well, which in turn will update the view
-    var childRef = this.ref.child(this.getParams().username);
-    // bindAsArray is added by the ReactFireMixin. Here we're using it to get the notes associated with the user passed in through childRef
-    this.bindAsArray(childRef, 'notes');
-    
+    this.ref = base.bindToState(this.router.getCurrentParams().username, {
+      context: this,
+      asArray: true,
+      state: 'notes'
+    });
     // Get Github info for the given user (from params.username). This comes from utils/helpers.js
-    helpers.getGithubInfo(this.getParams().username)
-      .then(function(obj){
+    helpers.getGithubInfo(this.router.getCurrentParams().username)
+      .then((obj) =>{
         this.setState({
           bio: obj.bio,
           repos: obj.repos
         });
-    }.bind(this)); // bind 'this' to the .then(), so the .then() isn't using a different 'this' 
-  },
-  componentDidMount: function(){
+    }); 
+  }
+  componentWillMount(){
+    this.router = this.context.router;
+  }
+  componentDidMount(){
     // This is called when the component is mounted in the view
-    this.ref = new Firebase('https://glaring-inferno-8473.firebaseio.com');
     // Initialise this.props
-    this.init();
-  },
-  componentWillUnmount: function(){
-    // Remove listener when the component is not in use
-    this.unbind('notes');
-  },
-  componentWillReceiveProps: function(){
-    // This function allows use to continue to listen for state changes and handle them accordingly
-    // Unbind the current bound user's notes
-    this.unbind('notes');
+    this.init(); 
+  }
+  componentWillUnmount(){
+    // Unbind the current notes when state changes (so that you don't see notes for the last person you looked at on the next person you look at!)
+    base.removeBinding(this.ref);
+  }
+  componentWillReceiveProps(){
+    // This function allows us to continue to listen for state changes and handle them accordingly
+    base.removeBinding(this.ref);
     // Initialise new this.props
     this.init();
-  },
-  handleAddNote: function(newNote){
-    // Function to add new notes into Firebase
-    this.ref.child(this.getParams().username).set(this.state.notes.concat([newNote]));
-  },
-  render: function(){
+  }
+  handleAddNote(newNote){
+    // Allow users to add a new note into the database
+    base.post(this.router.getCurrentParams().username, {
+      data: this.state.notes.concat([newNote])
+    })
+  }
+  render(){
     // params.username is set in routes.js
-    var username = this.getParams().username;
+    var username = this.router.getCurrentParams().username;
     // This function controls the profile view, which is made up of three components: UserProfile (github/user-profile.js), Repos (github/repos.js) and Notes (notes/notes.js). The notes function passes the addNote function which is defined further up this file, along with any pre-existing notes, which it gets from Firebase in the 'componentDidMount' function (further up this file) under this.bindAsArray. 
     return (
       <div className='row'>
@@ -70,11 +78,16 @@ var Profile = React.createClass({
           <Notes 
             username={username} 
             notes={this.state.notes}
-            addNote={this.handleAddNote}/>
+            addNote={this.handleAddNote.bind(this)}/>
         </div>
       </div>
     )
   }
-});
+};
 
-module.exports = Profile;
+Profile.contextTypes = {
+  router : React.PropTypes.func.isRequired
+}
+
+// ES6's export default replaces module.exports
+export default Profile;
